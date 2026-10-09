@@ -1,0 +1,84 @@
+Führe diese SQL Migration genau so aus, ohne Änderungen. Ändere keinen Frontend Code.
+
+```sql
+create table public.download_codes (
+  code_hash   text primary key,          -- SHA-256 des normalisierten Codes, nie der Code selbst
+  label       text,                      -- optional, z. B. "Code 07", kein Name
+  redeemed_at timestamptz,
+  device_id   text
+);
+alter table public.download_codes enable row level security;
+-- keine Policies: Browser (anon Schlüssel) kann die Tabelle weder lesen noch schreiben
+
+-- Einlösen in einem einzigen Schritt, damit zwei gleichzeitige Versuche nicht beide durchgehen
+create or replace function public.redeem_code(p_hash text, p_device text)
+returns text language plpgsql security definer set search_path = public as $$
+declare r public.download_codes;
+begin
+  update public.download_codes
+     set redeemed_at = coalesce(redeemed_at, now()),
+         device_id   = coalesce(device_id, p_device)
+   where code_hash = p_hash
+     and (redeemed_at is null
+          or (device_id = p_device and redeemed_at > now() - interval '1 hour'))
+  returning * into r;
+  if found then return 'ok'; end if;
+  if exists (select 1 from public.download_codes where code_hash = p_hash) then return 'used'; end if;
+  return 'invalid';
+end $$;
+revoke all on function public.redeem_code(text, text) from public, anon, authenticated;
+grant execute on function public.redeem_code(text, text) to service_role;
+
+insert into public.download_codes (code_hash, label) values
+  ('9f2a8744a8a647092882adccafb1974e5e6e0ba9baaf68329b3a8ddcb73a36a6', 'Code 01'),
+  ('1742bbe7b5a7b02815f2a221abfed8df0dabf584f44956bbed403895fb3e107e', 'Code 02'),
+  ('8c80b0c172c475dc952011c7eaf27aad5190cab282efa0af92f4fdc9cd4330ce', 'Code 03'),
+  ('d74065d3e2c35ac41ecf25d6c8b74d86d1d9034d30f2e79121f5baae125c425b', 'Code 04'),
+  ('e7781ef54f54faabe32e5c84af6ae750d07ea221a60d4489e0ddda5bf7cebeff', 'Code 05'),
+  ('3d4b2a7e90be8f3c0e8f6e4e04fd744c7ef9c7307daad4bd43d9e964c8640656', 'Code 06'),
+  ('33a66645ba96f76baeeee34e33126ead7db44a907a5c42194f2ef85d7670b63e', 'Code 07'),
+  ('8d0af2e685aa59f933d58093e770c3c1752ed8d03a090e6e7348673f2c559e41', 'Code 08'),
+  ('8181580c91fbff67cb3af6439ebc02baac30d4cb7ec2d6aa098330aac1621637', 'Code 09'),
+  ('eae7990a5ab6fec5bf7e293d0502199a6fd10e45653f30b25b718981d1079dfb', 'Code 10'),
+  ('42ab012c957bacb6a1c17a3e6343a12ef1dc73b8ffc686994b723d64029f55f1', 'Code 11'),
+  ('3475180e3702175e2db84eae10f27bfbde4a237c7faca4eab5177422962cb4de', 'Code 12'),
+  ('d344ae890476ca7801e4584c984b185c7a50e154c8c5bd02888e8ebbee602f81', 'Code 13'),
+  ('a7f280fe0edb23107f64a99cba119081421dfff65b96c1a8b8e07fc2727850db', 'Code 14'),
+  ('4a42fdee7442d9d380fe1ceb2275ec3e9f6814e1dcf6e070006b5e10a2ef964b', 'Code 15'),
+  ('26c36b981479e6e4e4870ab46af354c628aa87efb7aca0137e4332d3f3e73ddc', 'Code 16'),
+  ('31d76b69e75698519187c446f496191eb4b63044fe263a6148a16218a373550b', 'Code 17'),
+  ('400e4523712de344558b748a1b59e19a667b6248843dd82da7cba85d660622f7', 'Code 18'),
+  ('39d9bb20325d7d441a848d70dc54c8a9c61a3dd91aab44823ddc7a5ee0668f8e', 'Code 19'),
+  ('c0b45588253966da343c65776c4291590f3c98b13ebd1fe8b2d41bacf2d3e977', 'Code 20'),
+  ('79c3da59c3c354eb19a3e30bd63840855bd37bede5ac215e61a1dfaeed1d3249', 'Code 21'),
+  ('2680f72af04d7eee692b3e6178e3c041c902808ed9ce88fbeb5c36706d403675', 'Code 22'),
+  ('83f07ad5fa1a0ef9a7dca65565033c5e7d77f15ae6aff11bcad4154768ea7bea', 'Code 23'),
+  ('60f70cf0a2034b2022c565b83e1cc791bb0a3237ab524b05071ebec2ce39df15', 'Code 24'),
+  ('fe11bb6cf892017adc402b83b2950bc34e1c8ffb98f71fccb78c1840f6ff212c', 'Code 25'),
+  ('93b62bc5af8227c72896ec0afdcd039164f1444d11502cd0df69cd0916332c34', 'Code 26'),
+  ('cb9aa7410122524a50fd1cab84719481273260e70146106ec224e3b46bd36feb', 'Code 27'),
+  ('3fb2f7a6b1eef3a6d491e4266816cf268ad1b7691fc8e7ba88a5afafd4a985bc', 'Code 28'),
+  ('eabc2fadb0d07e2cda52f0febdcd8dbd3a5006e1a91deeafee8c3dbad7b5f2fb', 'Code 29'),
+  ('c935c0327e0e06556029e4df07ea799fc92a3cc9b915dfcc38cdbdb79c2f9c98', 'Code 30'),
+  ('fe4fe628c198751437b5b2f7faff6104c8faf739f66bbdc40984253d57dfdfc8', 'Code 31'),
+  ('fc93503b1677d614d547a1a36387a2b72fc6c7cbc576bd1a5b2fd699ad62247c', 'Code 32'),
+  ('bca43b1eb919c7a95a5869f534ab08e88d6bf1e8db6f4d4dbf133e3c9c12b777', 'Code 33'),
+  ('207654a20ed1a218f27524ee1df0e2e17bf43adae332401d8d5d6dbdf48d7f56', 'Code 34'),
+  ('316d39fa0c4affdbd18cfe3ed8420c6337c6ccc13ab592c8dbc5606f7974bac3', 'Code 35'),
+  ('aa4f852dacd8024854f99fdb49daa628011ec0937f2d73d8e0115d64207042d9', 'Code 36'),
+  ('e867bd662e3fb4479a1394c972f225dd67c7357088fc0d73e9576cb5482d01d3', 'Code 37'),
+  ('4694576783ed8566bf6b25594aa54c63523a59c18913bed2f0f474db9b500308', 'Code 38'),
+  ('38f126ac5332619e1991cd82017bd4eb957b22b5128561ad612658fc1512d1e7', 'Code 39'),
+  ('6eeeab481adf2783779f39ca53ffc7909004387b4c0049db823ce25e71323229', 'Code 40'),
+  ('abe0a87925454d9068cd0c1c912e76f2185ed19a699d0f1eda4020fa0a138b42', 'Code 41'),
+  ('90d17f768975b3ad4ca0bdf0e19cd2b1812a592b1745af68c26066722f561dcb', 'Code 42'),
+  ('cf8c6ca49b36d7cc3cfd98f5d8c61e728e138ec6b125d876396577ca4c3f35e2', 'Code 43'),
+  ('cc218eab665a2c1f65f2ea91e643fb18e7cdb07c0b60bd56d7cef3909bdf90a8', 'Code 44'),
+  ('b1d7dcb672fb6bd494b6ca0d74d56d942768050e7ec5506ce59ac220fe497a08', 'Code 45'),
+  ('7d112e0610f44ae2f198969996a2d352bf18ba0fe08e52113e59ae9733b8edf1', 'Code 46'),
+  ('14378340cb37b646f1ec98e501b6e4d9e8dda0c43201245c99ec5d2858beb0f9', 'Code 47'),
+  ('8d18eefec7b863b669d3e4751527d53cc75511e31c99f196f7e2cd60df4e7cb6', 'Code 48'),
+  ('4e74a17fc2d2a510cb86d9756bd0a862ee61067e7690bbdc3c2f3474bfc02743', 'Code 49'),
+  ('2cff2aa7db5e272e6d57100a94c3e8c3606824bc98daaefd9542fbb9cba51f03', 'Code 50')
+on conflict (code_hash) do nothing;
+```
