@@ -4,10 +4,9 @@ Aktuelle Version: **1.0.0**
 
 | Ordner | Inhalt |
 |---|---|
-| `mac/` | `ILIAS-Sync-1.0.0.dmg` (Apple Silicon) mit Prüfsumme |
-| `windows/` | `ILIAS-Sync-1.0.0-Setup.exe` (Erstinstallation) und `ILIAS-Sync-1.0.0-windows.zip` (für Updates in der App), je mit Prüfsumme |
-| `update/` | `ILIAS-Sync-1.0.2.dmg`: zeigt das Popup bei jeder anderen Server Version (auch älter, zum Zurückrollen), Update Prüfung schon 3 s nach dem Start. Steht in `release.ts` |
-| `alt/` | frühere Builds (0.1.0, 0.2.0, 1.0.1), nie veröffentlicht, nicht mehr verwenden |
+| `mac/` | `ILIAS-Sync-1.0.0.dmg` (Apple Silicon) mit Prüfsumme. Steht so in `release.ts` |
+| `windows/` | später: `ILIAS-Sync-<version>-Setup.exe` (Erstinstallation) und `ILIAS-Sync-<version>-windows.zip` (für Updates in der App) |
+| `alt/` | frühere Builds und Test Updates (0.1.0, 0.2.0, 1.0.0-vorab, 1.0.1, 1.0.2), nie veröffentlicht, nicht mehr verwenden |
 
 ## Was kommt wohin
 
