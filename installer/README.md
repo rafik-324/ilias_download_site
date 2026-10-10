@@ -6,7 +6,7 @@ Aktuelle Version: **1.0.0**
 |---|---|
 | `mac/` | `ILIAS-Sync-1.0.0.dmg` (Apple Silicon) mit Prüfsumme. Steht so in `release.ts` |
 | `windows/` | später: `ILIAS-Sync-<version>-Setup.exe` (Erstinstallation) und `ILIAS-Sync-<version>-windows.zip` (für Updates in der App) |
-| `alt/` | frühere Builds und Test Updates (0.1.0, 0.2.0, 1.0.0-vorab, 1.0.1, 1.0.2), nie veröffentlicht, nicht mehr verwenden |
+| `alt/` | frühere Builds und Test Updates (0.1.0, 0.2.0, 1.0.0-vorab, 1.0.0-vorab2, 1.0.1, 1.0.2), nie veröffentlicht, nicht mehr verwenden |
 
 ## Was kommt wohin
 
